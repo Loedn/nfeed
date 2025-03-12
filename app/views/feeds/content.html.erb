@@ -1,0 +1,47 @@
+<div class="feed-reader">
+  <h1><%= @feed.title %></h1>
+  <p class="feed-description"><%= @feed.description %></p>
+  
+  <div class="feed-meta">
+    <p>
+      <strong>Source:</strong> <%= link_to @feed.url, @feed.url, target: '_blank' %>
+      <% if @feed.last_fetched_at %>
+        | <strong>Last updated:</strong> <%= time_ago_in_words(@feed.last_fetched_at) %> ago
+      <% end %>
+    </p>
+  </div>
+  
+  <div class="feed-actions">
+    <%= button_to 'Refresh Feed', refresh_collection_feed_path(@collection, @feed), method: :post, class: 'btn btn-sm btn-info' %>
+    <%= link_to 'Back to Collection', collection_path(@collection), class: 'btn btn-sm btn-secondary' %>
+  </div>
+  
+  <% if @items.present? %>
+    <div class="feed-items">
+      <% @items.each do |item| %>
+        <div class="feed-item card mb-4">
+          <div class="card-header">
+            <h3 class="card-title"><%= link_to item["title"], item["link"], target: '_blank' %></h3>
+            <% if item["published_at"].present? %>
+              <p class="card-subtitle text-muted">
+                <%= Time.parse(item["published_at"]).strftime("%B %d, %Y at %I:%M %p") rescue item["published_at"] %>
+              </p>
+            <% end %>
+          </div>
+          <div class="card-body">
+            <div class="feed-item-content">
+              <%= process_feed_content(item) %>
+            </div>
+          </div>
+          <div class="card-footer">
+            <%= link_to 'Read original', item["link"], target: '_blank', class: 'btn btn-sm btn-outline-primary' %>
+          </div>
+        </div>
+      <% end %>
+    </div>
+  <% else %>
+    <div class="alert alert-info">
+      <p>No items in this feed yet. Try refreshing the feed.</p>
+    </div>
+  <% end %>
+</div> 

@@ -1,0 +1,34 @@
+<h1>Feeds for <%= @collection.name %></h1>
+
+<div class="actions">
+  <%= link_to 'New Feed', new_collection_feed_path(@collection), class: 'btn btn-primary' %>
+  <%= link_to 'Back to Collection', collection_path(@collection), class: 'btn btn-secondary' %>
+</div>
+
+<table class="table">
+  <thead>
+    <tr>
+      <th>Title</th>
+      <th>URL</th>
+      <th>Last Fetched</th>
+      <th>Status</th>
+      <th colspan="3">Actions</th>
+    </tr>
+  </thead>
+  <tbody>
+    <% @feeds.each do |feed| %>
+      <tr>
+        <td><%= feed.title %></td>
+        <td><%= link_to feed.url, feed.url, target: '_blank' %></td>
+        <td><%= feed.last_fetched_at ? time_ago_in_words(feed.last_fetched_at) + ' ago' : 'Never' %></td>
+        <td><%= feed.status || 'Not fetched' %></td>
+        <td>
+          <%= link_to 'View', collection_feed_path(@collection, feed) %>
+          <%= link_to 'Edit', edit_collection_feed_path(@collection, feed) %>
+          <%= link_to 'Delete', collection_feed_path(@collection, feed), method: :delete, data: { confirm: 'Are you sure?' } %>
+          <%= button_to 'Refresh', refresh_collection_feed_path(@collection, feed), method: :post, class: 'btn btn-sm btn-info' %>
+        </td>
+      </tr>
+    <% end %>
+  </tbody>
+</table> 

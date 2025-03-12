@@ -1,0 +1,8 @@
+<h1>Edit Feed</h1>
+
+<%= render 'form', collection: @collection, feed: @feed %>
+
+<div class="actions">
+  <%= link_to 'Show', collection_feed_path(@collection, @feed), class: 'btn btn-info' %>
+  <%= link_to 'Back to Feeds', collection_feeds_path(@collection), class: 'btn btn-secondary' %>
+</div> 
