@@ -1,0 +1,118 @@
+<div class="brutalist-container">
+  <div class="brutalist-sidebar">
+    <div class="sidebar-header">
+      <h2>COLLECTIONS</h2>
+    </div>
+    
+    <div class="collections-list">
+      <% if @collections.any? %>
+        <ul>
+          <% @collections.each do |collection| %>
+            <li class="collection-item">
+              <div class="collection-name">
+                <%= link_to collection.name.upcase, collection_path(collection) %>
+              </div>
+              
+              <% if collection.feeds.any? %>
+                <ul class="feed-sublist">
+                  <% collection.feeds.each do |feed| %>
+                    <li>
+                      <%= link_to feed.title, content_collection_feed_path(collection, feed) %>
+                      <span class="feed-count"><%= feed.feed_items.count %></span>
+                    </li>
+                  <% end %>
+                </ul>
+              <% end %>
+            </li>
+          <% end %>
+        </ul>
+      <% else %>
+        <p class="no-collections">NO COLLECTIONS YET</p>
+        <div class="brutalist-button">
+          <%= link_to "CREATE COLLECTION", new_collection_path %>
+        </div>
+      <% end %>
+    </div>
+    
+    <div class="sidebar-footer">
+      <div class="brutalist-button">
+        <%= link_to "NEW COLLECTION", new_collection_path %>
+      </div>
+    </div>
+  </div>
+  
+  <div class="brutalist-content">
+    <div class="content-header">
+      <h1>RECENT FEED ITEMS</h1>
+    </div>
+    
+    <div class="recent-items">
+      <% if @recent_items.any? %>
+        <% @recent_items.each do |item| %>
+          <div class="brutalist-item" id="item-<%= item.id %>">
+            <div class="item-header">
+              <div class="item-title">
+                <h3><%= link_to item.title, item.link, target: '_blank' %></h3>
+              </div>
+              
+              <div class="item-meta">
+                <div class="item-source">
+                  FROM: <%= link_to item.feed.title, content_collection_feed_path(item.feed.collection, item.feed) %>
+                  IN: <%= link_to item.feed.collection.name, collection_path(item.feed.collection) %>
+                </div>
+                
+                <div class="item-date">
+                  <%= item.published_at&.strftime("%Y-%m-%d %H:%M") %>
+                </div>
+                
+                <div class="item-type">
+                  <span class="brutalist-badge <%= item.content_type %>">
+                    <%= item.content_type.upcase %>
+                  </span>
+                </div>
+              </div>
+            </div>
+            
+            <div class="item-content">
+              <% if item.is_video? && item.youtube_id %>
+                <div class="brutalist-video">
+                  <iframe width="100%" height="315" 
+                    src="https://www.youtube.com/embed/<%= item.youtube_id %>" 
+                    frameborder="0" 
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                    allowfullscreen></iframe>
+                </div>
+              <% elsif item.is_audio? && item.audio_url %>
+                <div class="brutalist-audio">
+                  <audio controls class="w-100">
+                    <source src="<%= item.audio_url %>" type="<%= item.enclosure_type || 'audio/mpeg' %>">
+                    Your browser does not support the audio element.
+                  </audio>
+                </div>
+              <% end %>
+              
+              <div class="item-description">
+                <%= sanitize item.description %>
+              </div>
+            </div>
+            
+            <div class="item-footer">
+              <div class="brutalist-button">
+                <%= link_to "VIEW ORIGINAL", item.link, target: '_blank' %>
+              </div>
+              
+              <div class="brutalist-button">
+                <%= link_to "MORE FROM THIS FEED", content_collection_feed_path(item.feed.collection, item.feed) %>
+              </div>
+            </div>
+          </div>
+        <% end %>
+      <% else %>
+        <div class="no-items">
+          <p>NO FEED ITEMS YET</p>
+          <p>ADD SOME FEEDS TO GET STARTED</p>
+        </div>
+      <% end %>
+    </div>
+  </div>
+</div>

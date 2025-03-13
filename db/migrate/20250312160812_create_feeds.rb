@@ -1,4 +1,4 @@
-class CreateFeeds < ActiveRecord::Migration[6.1]
+class CreateFeeds < ActiveRecord::Migration[8.0] 
   def change
     create_table :feeds do |t|
       t.references :collection, null: false, foreign_key: true

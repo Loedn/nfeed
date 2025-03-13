@@ -1,0 +1,45 @@
+<h1>Feed Debug Information</h1>
+
+<div class="feed-details">
+  <p><strong>URL:</strong> <%= @feed.url %></p>
+  <p><strong>Status:</strong> <%= @feed.status || 'Not fetched' %></p>
+  <p><strong>Error:</strong> <%= @feed.fetch_error || 'None' %></p>
+</div>
+
+<div class="debug-info">
+  <h2>Debug Information</h2>
+  
+  <% if @debug_info[:error] %>
+    <div class="alert alert-danger">
+      <h3>Error</h3>
+      <p><%= @debug_info[:error] %></p>
+      
+      <% if @debug_info[:backtrace] %>
+        <h4>Backtrace</h4>
+        <pre><%= @debug_info[:backtrace].join("\n") %></pre>
+      <% end %>
+    </div>
+  <% else %>
+    <div class="card mb-3">
+      <div class="card-header">Feed Information</div>
+      <div class="card-body">
+        <p><strong>Feed Type:</strong> <%= @debug_info[:feed_type] %></p>
+        <p><strong>Items Count:</strong> <%= @debug_info[:items_count] %></p>
+      </div>
+    </div>
+    
+    <% if @debug_info[:sample_item] %>
+      <div class="card">
+        <div class="card-header">Sample Item XML</div>
+        <div class="card-body">
+          <pre><code><%= h(@debug_info[:sample_item]) %></code></pre>
+        </div>
+      </div>
+    <% end %>
+  <% end %>
+  
+  <div class="actions mt-3">
+    <%= button_to 'Try Refresh Again', refresh_collection_feed_path(@collection, @feed), method: :post, class: 'btn btn-primary' %>
+    <%= link_to 'Back to Feed', collection_feed_path(@collection, @feed), class: 'btn btn-secondary' %>
+  </div>
+</div> 

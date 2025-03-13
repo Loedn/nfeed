@@ -21,20 +21,63 @@
       <% @items.each do |item| %>
         <div class="feed-item card mb-4">
           <div class="card-header">
-            <h3 class="card-title"><%= link_to item["title"], item["link"], target: '_blank' %></h3>
-            <% if item["published_at"].present? %>
-              <p class="card-subtitle text-muted">
-                <%= Time.parse(item["published_at"]).strftime("%B %d, %Y at %I:%M %p") rescue item["published_at"] %>
-              </p>
-            <% end %>
-          </div>
-          <div class="card-body">
-            <div class="feed-item-content">
-              <%= process_feed_content(item) %>
+            <h3 class="card-title"><%= link_to item.title, item.link, target: '_blank' %></h3>
+            <div class="card-meta">
+              <% if item.published_at.present? %>
+                <span class="text-muted me-3">
+                  <i class="bi bi-calendar"></i> <%= item.published_at.strftime("%B %d, %Y at %I:%M %p") %>
+                </span>
+              <% end %>
+              
+              <% if item.author.present? %>
+                <span class="text-muted me-3">
+                  <i class="bi bi-person"></i> <%= item.author %>
+                </span>
+              <% end %>
+              
+              <span class="badge <%= item.content_type == 'video' ? 'bg-danger' : (item.content_type == 'audio' ? 'bg-success' : 'bg-primary') %>">
+                <%= item.content_type.capitalize %>
+              </span>
             </div>
           </div>
+          
+          <div class="card-body">
+            <div class="feed-item-content">
+              <% if item.is_video? %>
+                <% if item.youtube_id %>
+                  <div class="youtube-video-container mb-3">
+                    <iframe width="560" height="315" 
+                      src="https://www.youtube.com/embed/<%= item.youtube_id %>" 
+                      frameborder="0" 
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                      allowfullscreen></iframe>
+                  </div>
+                <% end %>
+                
+                <div class="feed-text-content">
+                  <%= sanitize item.description %>
+                </div>
+              <% elsif item.is_audio? %>
+                <% if item.audio_url %>
+                  <div class="audio-player mb-3">
+                    <audio controls class="w-100">
+                      <source src="<%= item.audio_url %>" type="<%= item.enclosure_type || 'audio/mpeg' %>">
+                      Your browser does not support the audio element.
+                    </audio>
+                  </div>
+                <% end %>
+                
+                <div class="feed-text-content">
+                  <%= sanitize item.description %>
+                </div>
+              <% else %>
+                <%= sanitize item.description %>
+              <% end %>
+            </div>
+          </div>
+          
           <div class="card-footer">
-            <%= link_to 'Read original', item["link"], target: '_blank', class: 'btn btn-sm btn-outline-primary' %>
+            <%= link_to 'Read original', item.link, target: '_blank', class: 'btn btn-sm btn-outline-primary' %>
           </div>
         </div>
       <% end %>

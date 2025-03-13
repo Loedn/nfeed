@@ -1,7 +1,15 @@
 class UrlValidator < ActiveModel::EachValidator
   def validate_each(record, attribute, value)
-    unless value.present? && value =~ /\A(http|https):\/\/[a-z0-9]+([\-\.]{1}[a-z0-9]+)*\.[a-z]{2,5}(:[0-9]{1,5})?(\/.*)?\z/ix
-      record.errors.add(attribute, options[:message] || "is not a valid URL")
+    return if value.blank? && !options[:allow_blank]
+    
+    # More lenient URL validation
+    valid = begin
+      uri = URI.parse(value)
+      uri.is_a?(URI::HTTP) || uri.is_a?(URI::HTTPS)
+    rescue URI::InvalidURIError
+      false
     end
+    
+    record.errors.add(attribute, options[:message] || "is not a valid URL") unless valid
   end
 end 

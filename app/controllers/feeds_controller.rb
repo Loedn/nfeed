@@ -21,9 +21,13 @@ class FeedsController < ApplicationController
     @feed = @collection.feeds.build(feed_params)
     
     if @feed.save
+      # Try to fetch feed content immediately
+      FeedFetcher.fetch(@feed) if params[:fetch_now]
       redirect_to collection_feed_path(@collection, @feed), notice: 'Feed was successfully created.'
     else
-      render :new
+      # Add more detailed error messages
+      flash.now[:alert] = "Failed to create feed: #{@feed.errors.full_messages.join(', ')}"
+      render :new, status: :unprocessable_entity
     end
   end
   
@@ -52,7 +56,35 @@ class FeedsController < ApplicationController
   end
   
   def content
-    @items = @feed.display_items(params[:limit] ? params[:limit].to_i : 10)
+    @items = @feed.feed_items.recent.limit(params[:limit] ? params[:limit].to_i : 10)
+  end
+  
+  def debug
+    @feed = @collection.feeds.find(params[:id])
+    @debug_info = {}
+    
+    begin
+      content = FeedFetcher.fetch_content(@feed.url)
+      if content
+        doc = Nokogiri::XML(content)
+        @debug_info[:feed_type] = if doc.at_css('rss') 
+                                    'RSS'
+                                  elsif doc.at_css('feed')
+                                    'Atom'
+                                  else
+                                    'Unknown'
+                                  end
+        @debug_info[:items_count] = doc.css('item, entry').count
+        @debug_info[:sample_item] = doc.at_css('item, entry')&.to_s
+      else
+        @debug_info[:error] = "Could not fetch content from URL"
+      end
+    rescue => e
+      @debug_info[:error] = e.message
+      @debug_info[:backtrace] = e.backtrace.first(5)
+    end
+    
+    render :debug
   end
   
   private

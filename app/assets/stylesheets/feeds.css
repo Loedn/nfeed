@@ -42,6 +42,33 @@
   height: 100%;
 }
 
+.audio-player {
+  background: #f8f9fa;
+  padding: 1rem;
+  border-radius: 5px;
+}
+
 .feed-text-content {
   margin-top: 1rem;
+}
+
+.card-meta {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  margin-top: 0.5rem;
+  font-size: 0.9rem;
+}
+
+/* Content type badges */
+.badge.bg-danger {
+  background-color: #dc3545;
+}
+
+.badge.bg-success {
+  background-color: #28a745;
+}
+
+.badge.bg-primary {
+  background-color: #007bff;
 } 
