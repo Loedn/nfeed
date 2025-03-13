@@ -1,6 +1,27 @@
-<%= form_with model: collection do |form| %>
-  <div>
+<%= form_with(model: collection, class: "terminal-form") do |form| %>
+  <% if collection.errors.any? %>
+    <div class="error-explanation">
+      <h2><%= pluralize(collection.errors.count, "error") %> prohibited this collection from being saved:</h2>
+
+      <ul>
+        <% collection.errors.each do |error| %>
+          <li><%= error.full_message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="field">
     <%= form.label :name %>
     <%= form.text_field :name %>
+  </div>
+
+  <div class="field">
+    <%= form.label :category %>
+    <%= form.select :category, Collection::CATEGORIES, { include_blank: "Select a category" }, class: "terminal-select" %>
+  </div>
+
+  <div class="actions">
+    <%= form.submit class: "terminal-button" %>
   </div>
 <% end %>

@@ -1,45 +1,99 @@
-<h1>Feed Debug Information</h1>
-
-<div class="feed-details">
-  <p><strong>URL:</strong> <%= @feed.url %></p>
-  <p><strong>Status:</strong> <%= @feed.status || 'Not fetched' %></p>
-  <p><strong>Error:</strong> <%= @feed.fetch_error || 'None' %></p>
-</div>
-
-<div class="debug-info">
-  <h2>Debug Information</h2>
-  
-  <% if @debug_info[:error] %>
-    <div class="alert alert-danger">
-      <h3>Error</h3>
-      <p><%= @debug_info[:error] %></p>
-      
-      <% if @debug_info[:backtrace] %>
-        <h4>Backtrace</h4>
-        <pre><%= @debug_info[:backtrace].join("\n") %></pre>
-      <% end %>
-    </div>
-  <% else %>
-    <div class="card mb-3">
-      <div class="card-header">Feed Information</div>
-      <div class="card-body">
-        <p><strong>Feed Type:</strong> <%= @debug_info[:feed_type] %></p>
-        <p><strong>Items Count:</strong> <%= @debug_info[:items_count] %></p>
+<div class="app-content">
+  <aside class="app-sidebar">
+    <div class="sidebar-section">
+      <h2 class="sidebar-title">Actions</h2>
+      <div class="sidebar-actions">
+        <%= button_to "Refresh Feed", refresh_collection_feed_path(@collection, @feed), method: :post, class: "sidebar-button" %>
+        <%= link_to "Back to Feed", collection_feed_path(@collection, @feed), class: "sidebar-button secondary" %>
       </div>
     </div>
     
-    <% if @debug_info[:sample_item] %>
-      <div class="card">
-        <div class="card-header">Sample Item XML</div>
-        <div class="card-body">
-          <pre><code><%= h(@debug_info[:sample_item]) %></code></pre>
+    <div class="sidebar-section">
+      <h2 class="sidebar-title">Feed Info</h2>
+      <div class="feed-info">
+        <div class="info-item">
+          <div class="info-label">URL</div>
+          <div class="info-value"><%= link_to @feed.url, @feed.url, target: '_blank', class: "small-link" %></div>
+        </div>
+        
+        <div class="info-item">
+          <div class="info-label">Last Fetch</div>
+          <div class="info-value"><%= @feed.last_fetched_at ? time_ago_in_words(@feed.last_fetched_at) + ' ago' : 'Never' %></div>
+        </div>
+        
+        <div class="info-item">
+          <div class="info-label">Status</div>
+          <div class="info-value">
+            <% if @feed.status == 'success' %>
+              <span class="status-badge success">Success</span>
+            <% elsif @feed.status == 'fetching' %>
+              <span class="status-badge warning">Fetching</span>
+            <% elsif @feed.status&.start_with?('error') %>
+              <span class="status-badge error">Error</span>
+            <% else %>
+              <span class="status-badge neutral">Not fetched</span>
+            <% end %>
+          </div>
         </div>
       </div>
-    <% end %>
-  <% end %>
+    </div>
+  </aside>
   
-  <div class="actions mt-3">
-    <%= button_to 'Try Refresh Again', refresh_collection_feed_path(@collection, @feed), method: :post, class: 'btn btn-primary' %>
-    <%= link_to 'Back to Feed', collection_feed_path(@collection, @feed), class: 'btn btn-secondary' %>
-  </div>
+  <main class="app-main">
+    <h1 class="main-title">Debug Feed: <%= @feed.title %></h1>
+    
+    <div class="debug-section">
+      <h2 class="section-title">Feed Details</h2>
+      <div class="debug-info">
+        <div class="debug-row">
+          <div class="debug-label">Title</div>
+          <div class="debug-value"><%= @feed.title %></div>
+        </div>
+        
+        <div class="debug-row">
+          <div class="debug-label">Description</div>
+          <div class="debug-value"><%= @feed.description %></div>
+        </div>
+        
+        <div class="debug-row">
+          <div class="debug-label">URL</div>
+          <div class="debug-value"><%= @feed.url %></div>
+        </div>
+        
+        <div class="debug-row">
+          <div class="debug-label">Status</div>
+          <div class="debug-value"><%= @feed.status %></div>
+        </div>
+        
+        <div class="debug-row">
+          <div class="debug-label">Last Fetched</div>
+          <div class="debug-value"><%= @feed.last_fetched_at %></div>
+        </div>
+        
+        <div class="debug-row">
+          <div class="debug-label">Item Count</div>
+          <div class="debug-value"><%= @feed.feed_items.count %></div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="debug-section">
+      <h2 class="section-title">Raw Feed Content</h2>
+      <div class="debug-actions">
+        <%= button_to "Fetch Raw Content", fetch_raw_collection_feed_path(@collection, @feed), method: :post, class: "form-button" %>
+      </div>
+      
+      <% if @raw_content.present? %>
+        <div class="code-block">
+          <pre><code><%= h(@raw_content) %></code></pre>
+        </div>
+      <% else %>
+        <div class="empty-state small">
+          <div class="empty-state-icon">📋</div>
+          <div class="empty-state-title">No raw content</div>
+          <div class="empty-state-description">Click "Fetch Raw Content" to retrieve the feed's XML</div>
+        </div>
+      <% end %>
+    </div>
+  </main>
 </div> 

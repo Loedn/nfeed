@@ -1,34 +1,74 @@
-<h1>Feeds for <%= @collection.name %></h1>
-
-<div class="actions">
-  <%= link_to 'New Feed', new_collection_feed_path(@collection), class: 'btn btn-primary' %>
-  <%= link_to 'Back to Collection', collection_path(@collection), class: 'btn btn-secondary' %>
-</div>
-
-<table class="table">
-  <thead>
-    <tr>
-      <th>Title</th>
-      <th>URL</th>
-      <th>Last Fetched</th>
-      <th>Status</th>
-      <th colspan="3">Actions</th>
-    </tr>
-  </thead>
-  <tbody>
-    <% @feeds.each do |feed| %>
-      <tr>
-        <td><%= feed.title %></td>
-        <td><%= link_to feed.url, feed.url, target: '_blank' %></td>
-        <td><%= feed.last_fetched_at ? time_ago_in_words(feed.last_fetched_at) + ' ago' : 'Never' %></td>
-        <td><%= feed.status || 'Not fetched' %></td>
-        <td>
-          <%= link_to 'View', collection_feed_path(@collection, feed) %>
-          <%= link_to 'Edit', edit_collection_feed_path(@collection, feed) %>
-          <%= link_to 'Delete', collection_feed_path(@collection, feed), method: :delete, data: { confirm: 'Are you sure?' } %>
-          <%= button_to 'Refresh', refresh_collection_feed_path(@collection, feed), method: :post, class: 'btn btn-sm btn-info' %>
-        </td>
-      </tr>
+<div class="app-content">
+  <aside class="app-sidebar">
+    <div class="sidebar-section">
+      <h2 class="sidebar-title">Actions</h2>
+      <div class="sidebar-actions">
+        <%= link_to "Add Feed", new_collection_feed_path(@collection), class: "sidebar-button" %>
+        <%= link_to "Back to Collection", collection_path(@collection), class: "sidebar-button secondary" %>
+      </div>
+    </div>
+    
+    <div class="sidebar-section">
+      <h2 class="sidebar-title">Collection</h2>
+      <div class="collection-info">
+        <div class="collection-name"><%= @collection.name %></div>
+        <div class="collection-category"><%= @collection.category %></div>
+      </div>
+    </div>
+  </aside>
+  
+  <main class="app-main">
+    <h1 class="main-title">Feeds in <%= @collection.name %></h1>
+    
+    <% if @feeds.any? %>
+      <table class="app-table">
+        <thead>
+          <tr>
+            <th>Title</th>
+            <th>Items</th>
+            <th>Last Updated</th>
+            <th>Status</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% @feeds.each do |feed| %>
+            <tr>
+              <td>
+                <div class="feed-title-cell">
+                  <%= feed.title %>
+                  <div class="feed-url"><%= link_to feed.url, feed.url, target: '_blank', class: "small-link" %></div>
+                </div>
+              </td>
+              <td><%= feed.feed_items.count %></td>
+              <td><%= feed.last_fetched_at ? time_ago_in_words(feed.last_fetched_at) + ' ago' : 'Never' %></td>
+              <td>
+                <% if feed.status == 'success' %>
+                  <span class="status-badge success">Success</span>
+                <% elsif feed.status == 'fetching' %>
+                  <span class="status-badge warning">Fetching</span>
+                <% elsif feed.status == 'error' %>
+                  <span class="status-badge error">Error</span>
+                <% else %>
+                  <span class="status-badge neutral">Not fetched</span>
+                <% end %>
+              </td>
+              <td class="table-actions">
+                <%= link_to "View", content_collection_feed_path(@collection, feed), class: "table-button" %>
+                <%= link_to "Manage", collection_feed_path(@collection, feed), class: "table-button" %>
+                <%= button_to "Refresh", refresh_collection_feed_path(@collection, feed), method: :post, class: "table-button" %>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    <% else %>
+      <div class="empty-state">
+        <div class="empty-state-icon">📡</div>
+        <div class="empty-state-title">No feeds yet</div>
+        <div class="empty-state-description">Add some feeds to start collecting content</div>
+        <%= link_to "Add Feed", new_collection_feed_path(@collection), class: "form-button" %>
+      </div>
     <% end %>
-  </tbody>
-</table> 
+  </main>
+</div> 

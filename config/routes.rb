@@ -6,6 +6,7 @@ Rails.application.routes.draw do
         post :refresh
         get :content
         get :debug
+        post :fetch_raw
       end
     end
   end

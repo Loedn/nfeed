@@ -1,11 +1,54 @@
-<h1>Collections</h1>
-
-<%= link_to "New Collection", new_collection_path %>
-
-<div id="collections">
-  <% @collections.each do |collection| %>
-    <div>
-      <%= link_to collection.name, collection %>
+<div class="app-content">
+  <aside class="app-sidebar">
+    <div class="sidebar-section">
+      <h2 class="sidebar-title">Actions</h2>
+      <%= link_to "New Collection", new_collection_path, class: "sidebar-button" %>
     </div>
-  <% end %>
+  </aside>
+  
+  <main class="app-main">
+    <h1 class="main-title">Collections</h1>
+    
+    <% if @collections.any? %>
+      <% @collections.grouped_by_category.each do |category, collections| %>
+        <div class="category-section">
+          <h2 class="category-title">
+            <span class="category-icon">📁</span> <%= category || "Uncategorized" %>
+          </h2>
+          
+          <table class="app-table">
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Feeds</th>
+                <th>Items</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% collections.each do |collection| %>
+                <tr>
+                  <td><%= collection.name %></td>
+                  <td><%= collection.feeds.count %></td>
+                  <td><%= collection.feeds.sum { |feed| feed.feed_items.count } %></td>
+                  <td class="table-actions">
+                    <%= link_to "View", collection_path(collection), class: "table-button" %>
+                    <%= link_to "Edit", edit_collection_path(collection), class: "table-button" %>
+                    <%= button_to "Delete", collection, method: :delete, class: "table-button", form: { data: { turbo_confirm: "Are you sure?" } } %>
+                  </td>
+                </tr>
+              <% end %>
+            </tbody>
+          </table>
+        </div>
+      <% end %>
+    <% else %>
+      <div class="empty-state">
+        <div class="empty-state-icon">📚</div>
+        <div class="empty-state-title">No collections found</div>
+        <div class="empty-state-description">Create a collection to get started</div>
+        <%= link_to "Create Collection", new_collection_path, class: "form-button" %>
+      </div>
+    <% end %>
+  </main>
 </div>

@@ -10,11 +10,13 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_03_12_170001) do
+ActiveRecord::Schema[8.0].define(version: 2025_03_13_000001) do
   create_table "collections", force: :cascade do |t|
     t.string "name"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "category"
+    t.index ["category"], name: "index_collections_on_category"
   end
 
   create_table "feed_items", force: :cascade do |t|

@@ -59,8 +59,27 @@ class FeedsController < ApplicationController
     @items = @feed.feed_items.recent.limit(params[:limit] ? params[:limit].to_i : 10)
   end
   
+  def fetch_raw
+    @feed = @collection.feeds.find(params[:id])
+    
+    begin
+      @raw_content = FeedFetcher.fetch_content(@feed.url)
+      
+      if @raw_content
+        # Store the raw content in a temporary session variable
+        session[:raw_feed_content] = @raw_content
+        redirect_to debug_collection_feed_path(@collection, @feed), notice: "Raw feed content fetched successfully"
+      else
+        redirect_to debug_collection_feed_path(@collection, @feed), alert: "Failed to fetch content from URL"
+      end
+    rescue => e
+      redirect_to debug_collection_feed_path(@collection, @feed), alert: "Error fetching raw content: #{e.message}"
+    end
+  end
+  
   def debug
     @feed = @collection.feeds.find(params[:id])
+    @raw_content = session[:raw_feed_content]
     @debug_info = {}
     
     begin

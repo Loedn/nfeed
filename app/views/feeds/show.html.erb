@@ -1,77 +1,138 @@
-<h1><%= @feed.title %></h1>
-
-<div class="feed-details">
-  <p><strong>URL:</strong> <%= link_to @feed.url, @feed.url, target: '_blank' %></p>
-  <p><strong>Description:</strong> <%= @feed.description %></p>
-  <p><strong>Last Fetched:</strong> <%= @feed.last_fetched_at ? time_ago_in_words(@feed.last_fetched_at) + ' ago' : 'Never' %></p>
-  <p><strong>Status:</strong> <%= @feed.status || 'Not fetched' %></p>
-  <p><strong>RSS Feed URL:</strong> <%= link_to collection_feed_url(@collection, @feed, format: :rss), collection_feed_url(@collection, @feed, format: :rss) %></p>
-  <p><strong>Item Count:</strong> <%= @feed.feed_items.count %></p>
-  
-  <% if @feed.feed_items.any? %>
-    <p>
-      <strong>Content Types:</strong>
-      <% video_count = @feed.feed_items.where(is_video: true).count %>
-      <% audio_count = @feed.feed_items.where(is_audio: true).count %>
-      <% text_count = @feed.feed_items.count - video_count - audio_count %>
-      
-      <% if video_count > 0 %>
-        <span class="badge bg-danger me-1">Video (<%= video_count %>)</span>
-      <% end %>
-      
-      <% if audio_count > 0 %>
-        <span class="badge bg-success me-1">Audio (<%= audio_count %>)</span>
-      <% end %>
-      
-      <% if text_count > 0 %>
-        <span class="badge bg-primary me-1">Text (<%= text_count %>)</span>
-      <% end %>
-    </p>
-  <% end %>
-</div>
-
-<div class="actions">
-  <%= link_to 'Edit', edit_collection_feed_path(@collection, @feed), class: 'btn btn-primary' %>
-  <%= button_to 'Refresh Feed', refresh_collection_feed_path(@collection, @feed), method: :post, class: 'btn btn-info' %>
-  <%= link_to 'View Content', content_collection_feed_path(@collection, @feed), class: 'btn btn-success' %>
-  <%= link_to 'Debug Feed', debug_collection_feed_path(@collection, @feed), class: 'btn btn-warning' %>
-  <%= link_to 'Back to Feeds', collection_feeds_path(@collection), class: 'btn btn-secondary' %>
-</div>
-
-<% if @feed.feed_items.any? %>
-  <h2>Recent Feed Items</h2>
-  <div class="feed-items">
-    <table class="table">
-      <thead>
-        <tr>
-          <th>Title</th>
-          <th>Published</th>
-          <th>Type</th>
-          <th>Actions</th>
-        </tr>
-      </thead>
-      <tbody>
-        <% @feed.feed_items.recent.limit(10).each do |item| %>
-          <tr>
-            <td><%= link_to item.title, item.link, target: '_blank' %></td>
-            <td><%= item.published_at&.strftime("%Y-%m-%d %H:%M") %></td>
-            <td>
-              <span class="badge <%= item.content_type == 'video' ? 'bg-danger' : (item.content_type == 'audio' ? 'bg-success' : 'bg-primary') %>">
-                <%= item.content_type.capitalize %>
-              </span>
-            </td>
-            <td>
-              <%= link_to 'View', content_collection_feed_path(@collection, @feed, anchor: "item-#{item.id}"), class: 'btn btn-sm btn-outline-primary' %>
-            </td>
-          </tr>
-        <% end %>
-      </tbody>
-    </table>
+<div class="app-content">
+  <aside class="app-sidebar">
+    <div class="sidebar-section">
+      <h2 class="sidebar-title">Actions</h2>
+      <div class="sidebar-actions">
+        <%= link_to "Edit Feed", edit_collection_feed_path(@collection, @feed), class: "sidebar-button" %>
+        <%= button_to "Refresh Feed", refresh_collection_feed_path(@collection, @feed), method: :post, class: "sidebar-button" %>
+        <%= link_to "View Content", content_collection_feed_path(@collection, @feed), class: "sidebar-button" %>
+        <%= link_to "Debug Feed", debug_collection_feed_path(@collection, @feed), class: "sidebar-button secondary" %>
+        <%= link_to "Back to Feeds", collection_feeds_path(@collection), class: "sidebar-button secondary" %>
+      </div>
+    </div>
     
-    <% if @feed.feed_items.count > 10 %>
-      <p><%= link_to "View all #{@feed.feed_items.count} items", content_collection_feed_path(@collection, @feed) %></p>
+    <div class="sidebar-section">
+      <h2 class="sidebar-title">Feed Info</h2>
+      <div class="feed-info">
+        <div class="info-item">
+          <div class="info-label">Collection</div>
+          <div class="info-value"><%= link_to @collection.name, collection_path(@collection) %></div>
+        </div>
+        
+        <div class="info-item">
+          <div class="info-label">Last Updated</div>
+          <div class="info-value"><%= @feed.last_fetched_at ? time_ago_in_words(@feed.last_fetched_at) + ' ago' : 'Never' %></div>
+        </div>
+        
+        <div class="info-item">
+          <div class="info-label">Status</div>
+          <div class="info-value">
+            <% if @feed.status == 'success' %>
+              <span class="status-badge success">Success</span>
+            <% elsif @feed.status == 'fetching' %>
+              <span class="status-badge warning">Fetching</span>
+            <% elsif @feed.status == 'error' %>
+              <span class="status-badge error">Error</span>
+            <% else %>
+              <span class="status-badge neutral">Not fetched</span>
+            <% end %>
+          </div>
+        </div>
+        
+        <div class="info-item">
+          <div class="info-label">RSS Feed URL</div>
+          <div class="info-value">
+            <%= link_to "View RSS", collection_feed_url(@collection, @feed, format: :rss), class: "small-link", target: "_blank" %>
+          </div>
+        </div>
+      </div>
+    </div>
+  </aside>
+  
+  <main class="app-main">
+    <div class="page-header">
+      <h1 class="main-title"><%= @feed.title %></h1>
+      <div class="feed-url"><%= link_to @feed.url, @feed.url, target: '_blank' %></div>
+    </div>
+    
+    <div class="feed-description-section">
+      <p><%= @feed.description %></p>
+    </div>
+    
+    <% if @feed.feed_items.any? %>
+      <div class="content-types-section">
+        <h2 class="section-title">Content Types</h2>
+        <div class="content-types">
+          <% video_count = @feed.feed_items.where(is_video: true).count %>
+          <% audio_count = @feed.feed_items.where(is_audio: true).count %>
+          <% text_count = @feed.feed_items.count - video_count - audio_count %>
+          
+          <% if video_count > 0 %>
+            <div class="content-type-badge video">
+              <div class="badge-count"><%= video_count %></div>
+              <div class="badge-label">Video</div>
+            </div>
+          <% end %>
+          
+          <% if audio_count > 0 %>
+            <div class="content-type-badge audio">
+              <div class="badge-count"><%= audio_count %></div>
+              <div class="badge-label">Audio</div>
+            </div>
+          <% end %>
+          
+          <% if text_count > 0 %>
+            <div class="content-type-badge text">
+              <div class="badge-count"><%= text_count %></div>
+              <div class="badge-label">Text</div>
+            </div>
+          <% end %>
+        </div>
+      </div>
+      
+      <div class="recent-items-section">
+        <h2 class="section-title">Recent Items</h2>
+        <table class="app-table">
+          <thead>
+            <tr>
+              <th>Title</th>
+              <th>Published</th>
+              <th>Type</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% @feed.feed_items.recent.limit(10).each do |item| %>
+              <tr>
+                <td><%= link_to truncate(item.title, length: 60), item.link, target: '_blank' %></td>
+                <td><%= item.published_at&.strftime("%b %d, %Y") %></td>
+                <td>
+                  <span class="content-badge <%= item.content_type %>">
+                    <%= item.content_type %>
+                  </span>
+                </td>
+                <td class="table-actions">
+                  <%= link_to "View", content_collection_feed_path(@collection, @feed, anchor: "item-#{item.id}"), class: "table-button" %>
+                  <%= link_to "Open", item.link, target: "_blank", class: "table-button" %>
+                </td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+        
+        <% if @feed.feed_items.count > 10 %>
+          <div class="view-all-link">
+            <%= link_to "View all #{@feed.feed_items.count} items", content_collection_feed_path(@collection, @feed) %>
+          </div>
+        <% end %>
+      </div>
+    <% else %>
+      <div class="empty-state">
+        <div class="empty-state-icon">📄</div>
+        <div class="empty-state-title">No items in this feed yet</div>
+        <div class="empty-state-description">Try refreshing the feed to fetch content</div>
+        <%= button_to "Refresh Feed", refresh_collection_feed_path(@collection, @feed), method: :post, class: "form-button" %>
+      </div>
     <% end %>
-  </div>
-<% else %>
-  <p>No items in this feed yet.</p>
-<% end %> 
+  </main>
+</div> 

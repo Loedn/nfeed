@@ -1,0 +1,50 @@
+<div class="terminal-header">
+  <div class="terminal-title">
+    <%= yield(:title) || "Terminal Feed Reader" %>
+  </div>
+  <div class="terminal-controls">
+    <span class="terminal-control terminal-close"></span>
+    <span class="terminal-control terminal-minimize"></span>
+    <span class="terminal-control terminal-maximize"></span>
+  </div>
+</div>
+
+<div class="terminal-navbar">
+  <div class="terminal-prompt">
+    <span class="prompt-user">user@feedreader</span>:<span class="prompt-path">~<%= request.path %></span>$ 
+    <span class="navbar-command">
+      <%= link_to "cd /home", root_path, class: request.path == "/" ? "active" : "" %>
+      <%= link_to "cd /collections", collections_path, class: request.path.include?("/collections") ? "active" : "" %>
+      <%= link_to "help", "#", onclick: "showHelp(); return false;" %>
+    </span>
+    <span class="cursor"></span>
+  </div>
+</div>
+
+<div id="terminal-help" class="terminal-help" style="display: none;">
+  <div class="help-content">
+    <h3>Terminal Feed Reader Help</h3>
+    <p>Available commands:</p>
+    <ul>
+      <li><code>cd /home</code> - Go to home page</li>
+      <li><code>cd /collections</code> - View all collections</li>
+      <li><code>cd /collections/[id]</code> - View a specific collection</li>
+      <li><code>cd /collections/[id]/feeds/[id]</code> - View a specific feed</li>
+      <li><code>refresh</code> - Refresh the current feed</li>
+      <li><code>new</code> - Create a new item</li>
+      <li><code>help</code> - Show this help</li>
+      <li><code>exit</code> - Close the terminal (just kidding!)</li>
+    </ul>
+    <div class="terminal-button" onclick="hideHelp()">Close Help</div>
+  </div>
+</div>
+
+<script>
+  function showHelp() {
+    document.getElementById('terminal-help').style.display = 'block';
+  }
+  
+  function hideHelp() {
+    document.getElementById('terminal-help').style.display = 'none';
+  }
+</script> 

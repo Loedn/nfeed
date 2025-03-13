@@ -1,26 +1,60 @@
-<h1><%= @collection.name %></h1>
-
-<%= link_to "Back", collections_path %>
-<%= link_to "Edit", edit_collection_path(@collection) %>
-<%= button_to "Delete", @collection, method: :delete, data: { turbo_confirm: "Are you sure?" } %>
-
-<div class="collection-feeds">
-  <h2>Feeds</h2>
-  <p><%= link_to 'Manage Feeds', collection_feeds_path(@collection), class: 'btn btn-primary' %></p>
+<div class="app-content">
+  <aside class="app-sidebar">
+    <div class="sidebar-section">
+      <h2 class="sidebar-title">Actions</h2>
+      <div class="sidebar-actions">
+        <%= link_to "Edit Collection", edit_collection_path(@collection), class: "sidebar-button" %>
+        <%= link_to "Add Feed", new_collection_feed_path(@collection), class: "sidebar-button" %>
+        <%= link_to "Back to Collections", collections_path, class: "sidebar-button secondary" %>
+      </div>
+    </div>
+  </aside>
   
-  <% if @collection.feeds.any? %>
-    <ul class="feeds-list">
-      <% @collection.feeds.each do |feed| %>
-        <li>
-          <%= link_to feed.title, content_collection_feed_path(@collection, feed) %>
-          <small>
-            (<%= link_to 'Manage', collection_feed_path(@collection, feed) %> | 
-            <%= link_to 'RSS', collection_feed_path(@collection, feed, format: :rss) %>)
-          </small>
-        </li>
+  <main class="app-main">
+    <div class="page-header">
+      <h1 class="main-title"><%= @collection.name %></h1>
+      <div class="category-badge"><%= @collection.category %></div>
+    </div>
+    
+    <div class="collection-feeds">
+      <% if @collection.feeds.any? %>
+        <h2 class="section-title">Feeds</h2>
+        
+        <div class="feed-grid">
+          <% @collection.feeds.each do |feed| %>
+            <div class="feed-card">
+              <div class="feed-card-header">
+                <h3 class="feed-title"><%= feed.title %></h3>
+                <div class="feed-meta">
+                  <span class="feed-count"><%= feed.feed_items.count %> items</span>
+                  <% if feed.last_fetched_at %>
+                    <span class="feed-updated">Updated <%= time_ago_in_words(feed.last_fetched_at) %> ago</span>
+                  <% end %>
+                </div>
+              </div>
+              
+              <div class="feed-card-content">
+                <p class="feed-description"><%= truncate(feed.description, length: 120) || "No description available" %></p>
+              </div>
+              
+              <div class="feed-card-footer">
+                <div class="feed-actions">
+                  <%= link_to "View Content", content_collection_feed_path(@collection, feed), class: "action-button" %>
+                  <%= link_to "Manage", collection_feed_path(@collection, feed), class: "action-button secondary" %>
+                  <%= button_to "Refresh", refresh_collection_feed_path(@collection, feed), method: :post, class: "action-button secondary" %>
+                </div>
+              </div>
+            </div>
+          <% end %>
+        </div>
+      <% else %>
+        <div class="empty-state">
+          <div class="empty-state-icon">📡</div>
+          <div class="empty-state-title">No feeds yet</div>
+          <div class="empty-state-description">Add some feeds to start collecting content</div>
+          <%= link_to "Add Feed", new_collection_feed_path(@collection), class: "form-button" %>
+        </div>
       <% end %>
-    </ul>
-  <% else %>
-    <p>No feeds yet. <%= link_to 'Add a feed', new_collection_feed_path(@collection) %></p>
-  <% end %>
+    </div>
+  </main>
 </div>

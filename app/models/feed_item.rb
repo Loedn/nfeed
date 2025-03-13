@@ -44,4 +44,9 @@ class FeedItem < ApplicationRecord
     return link if link =~ /\.mp3$|\.m4a$|\.wav$|\.ogg$|\.opus$/
     nil
   end
+  
+  # Method to access the sources set by the controller
+  def all_sources
+    @all_sources || [feed]
+  end
 end 

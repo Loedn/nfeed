@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title><%= content_for(:title) || "Nfeed" %></title>
+    <title><%= content_for(:title) || "Feed Reader" %></title>
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="mobile-web-app-capable" content="yes">
@@ -14,8 +14,9 @@
     <%#= tag.link rel: "manifest", href: pwa_manifest_path(format: :json) %>
 
     <link rel="icon" href="/icon.png" type="image/png">
-    <link rel="icon" href="/icon.svg" type="image/svg+xml">
     <link rel="apple-touch-icon" href="/icon.png">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&display=swap">
 
     <%# Includes all stylesheet files in app/assets/stylesheets %>
     <%= stylesheet_link_tag :app, "data-turbo-track": "reload" %>
@@ -23,24 +24,19 @@
   </head>
 
   <body>
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-      <div class="container">
-        <%= link_to "FEED READER", root_path, class: "navbar-brand" %>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-          <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="navbarNav">
-          <ul class="navbar-nav">
-            <li class="nav-item">
-              <%= link_to "Home", root_path, class: "nav-link" %>
-            </li>
-            <li class="nav-item">
-              <%= link_to "Collections", collections_path, class: "nav-link" %>
-            </li>
-          </ul>
+    <div class="app-container">
+      <header class="app-header">
+        <div class="app-logo">
+          <div class="app-logo-icon">F</div>
+          Feed Reader
         </div>
-      </div>
-    </nav>
-    <%= yield %>
+        <nav class="app-nav">
+          <%= link_to "Home", root_path, class: "app-nav-item #{current_page?(root_path) ? 'active' : ''}" %>
+          <%= link_to "Collections", collections_path, class: "app-nav-item #{controller_name == 'collections' ? 'active' : ''}" %>
+        </nav>
+      </header>
+
+      <%= yield %>
+    </div>
   </body>
 </html>

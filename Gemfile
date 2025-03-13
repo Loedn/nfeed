@@ -64,3 +64,4 @@ end
 
 gem 'nokogiri'
 gem 'rss', require: true
+gem 'feedjira', require: true
