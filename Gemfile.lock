@@ -109,7 +109,7 @@ GEM
     erubi (1.13.1)
     et-orbi (1.2.11)
       tzinfo
-    feedjira (3.2.4)
+    feedjira (3.2.5)
       loofah (>= 2.3.1, < 3)
       sax-machine (>= 1.0, < 2)
     fugit (1.11.1)
